@@ -62,7 +62,7 @@ export const playTwinkle = () => {
   }
 };
 
-export const playBaa = () => {
+const playSyntheticBaa = () => {
   try {
     const ctx = getAudioContext();
     const time = ctx.currentTime;
@@ -114,6 +114,20 @@ export const playBaa = () => {
     oscs.forEach(osc => osc.stop(time + 0.6));
   } catch (e) {
     console.warn("Could not play goat moo sound", e);
+  }
+};
+
+export const playBaa = () => {
+  try {
+    const audio = new Audio('/goat.mp3');
+    audio.volume = 0.6;
+    audio.play().catch(e => {
+      console.warn("Local goat.mp3 blocked or not found, falling back to synthesized sound:", e);
+      playSyntheticBaa();
+    });
+  } catch (e) {
+    console.warn("Audio element failed, falling back:", e);
+    playSyntheticBaa();
   }
 };
 
