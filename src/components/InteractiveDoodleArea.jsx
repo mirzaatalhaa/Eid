@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FiTrash2, FiEdit, FiCloudRain, FiStar, FiMove } from 'react-icons/fi';
+import { FiTrash2, FiEdit, FiStar, FiMove } from 'react-icons/fi';
 import { playPop, playSlide } from '../utils/audio';
 
 const colors = [
@@ -13,18 +13,11 @@ const colors = [
 export default function InteractiveDoodleArea({ isMuted }) {
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
+  const stickerTrayRef = useRef(null);
+  const doodleAreaRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [brushColor, setBrushColor] = useState('#221a0f');
   const [brushSize, setBrushSize] = useState(5);
-  
-  // Custom sticker boards
-  const [stickers, setStickers] = useState([
-    { id: 1, icon: '🐑', x: 50, y: 50, isDragging: false },
-    { id: 2, icon: '🌙', x: 280, y: 40, isDragging: false },
-    { id: 3, icon: '⭐', x: 200, y: 150, isDragging: false },
-    { id: 4, icon: '🍪', x: 120, y: 220, isDragging: false },
-    { id: 5, icon: '🎈', x: 300, y: 260, isDragging: false }
-  ]);
 
   // Set up Drawing Canvas
   useEffect(() => {
@@ -165,7 +158,7 @@ export default function InteractiveDoodleArea({ isMuted }) {
         </p>
       </div>
 
-      <div className="flex flex-col lg:grid lg:grid-cols-12 gap-5 sm:gap-8 items-start max-w-5xl mx-auto">
+      <div ref={doodleAreaRef} className="flex flex-col lg:grid lg:grid-cols-12 gap-5 sm:gap-8 items-start max-w-5xl mx-auto">
         {/* Draw controls: Full width on mobile, Col span 3 on desktop */}
         <div className="w-full lg:col-span-3 bg-surface-container-high border-[3px] border-on-background rounded-2xl wobbly-border-sm p-4 sm:p-5 sticker-shadow flex flex-col gap-3 sm:gap-4">
           <h3 className="font-headline font-bold text-lg text-on-surface mb-2 flex items-center gap-1.5">
@@ -256,35 +249,41 @@ export default function InteractiveDoodleArea({ isMuted }) {
         </div>
 
         {/* Floating draggable sticker board: Full width on mobile, Col span 3 on desktop */}
-        <div className="w-full lg:col-span-3 bg-surface-container-low border-[3px] border-on-background rounded-2xl wobbly-border-sm p-4 sm:p-5 sticker-shadow flex flex-col gap-3 sm:gap-4 min-h-[220px] sm:min-h-[300px] relative overflow-hidden bg-paper-grid">
+        <div className="w-full lg:col-span-3 bg-surface-container-low border-[3px] border-on-background rounded-2xl wobbly-border-sm p-4 sm:p-5 sticker-shadow flex flex-col gap-3 sm:gap-4 min-h-[220px] sm:min-h-[300px] relative bg-paper-grid z-20">
           <h3 className="font-headline font-bold text-base text-on-surface mb-1 flex items-center gap-1.5">
             <FiMove className="text-secondary animate-bounce" />
             Drag Stickers
           </h3>
           <p className="font-body text-xs text-on-surface-variant leading-relaxed mb-2 font-semibold">
-            Pick up these sticker assets and drag them anywhere in this tray!
+            Pick up these sticker assets and drag them to the drawing pad!
           </p>
 
-          <div className="relative flex-grow border-2 border-dashed border-outline-variant/50 rounded-xl min-h-[160px] p-2 bg-background/50">
-            {stickers.map((st) => (
-              <motion.div
-                key={st.id}
-                drag
-                dragConstraints={{ left: 0, right: 180, top: 0, bottom: 120 }}
-                dragElastic={0.05}
-                dragMomentum={false}
-                onDragStart={() => {
-                  if (!isMuted) playSlide();
-                }}
-                onDragEnd={(e, info) => {
-                  if (!isMuted) playPop();
-                }}
-                className="absolute text-4xl w-12 h-12 flex items-center justify-center cursor-grab active:cursor-grabbing hover:scale-115 transition-transform"
-                style={{ left: st.x, top: st.y }}
-              >
-                {st.icon}
-              </motion.div>
-            ))}
+          <div 
+            ref={stickerTrayRef}
+            className="relative flex-grow border-2 border-dashed border-outline-variant/50 rounded-xl min-h-[160px] p-2 bg-background/50"
+          >
+            {/* Stickers laid out in a flex grid so they start inside the container */}
+            <div className="flex flex-wrap gap-4 justify-center items-center h-full min-h-[140px]">
+              {['🐑', '🌙', '⭐'].map((icon, i) => (
+                <motion.div
+                  key={i}
+                  drag
+                  dragConstraints={doodleAreaRef}
+                  dragElastic={0.1}
+                  dragMomentum={false}
+                  onDragStart={() => {
+                    if (!isMuted) playSlide();
+                  }}
+                  onDragEnd={() => {
+                    if (!isMuted) playPop();
+                  }}
+                  whileDrag={{ scale: 1.2, zIndex: 50 }}
+                  className="text-3xl sm:text-4xl w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center cursor-grab active:cursor-grabbing hover:scale-110 transition-transform select-none z-30"
+                >
+                  {icon}
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

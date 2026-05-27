@@ -71,23 +71,7 @@ export default function Footer({ isMuted }) {
           </div>
         </div>
 
-        {/* Links (Styled like tags or sticky tape) */}
-        <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
-          <a
-            href="#"
-            onClick={(e) => { e.preventDefault(); if (!isMuted) playPop(); alert("Happy Eid! Made by Antigravity under Gemini IDE scratchpad context."); }}
-            className="font-headline font-bold text-xs bg-surface text-on-surface-variant px-3 py-1.5 border-2 border-outline-variant hover:rotate-1 hover:scale-105 transition-transform rounded-md shadow-sm"
-          >
-            About Project
-          </a>
-          <a
-            href="#"
-            onClick={(e) => { e.preventDefault(); if (!isMuted) playPop(); alert("This application is running locally. Spread joy!"); }}
-            className="font-headline font-bold text-xs bg-surface text-on-surface-variant px-3 py-1.5 border-2 border-outline-variant hover:-rotate-1 hover:scale-105 transition-transform rounded-md shadow-sm"
-          >
-            Privacy Notes
-          </a>
-        </div>
+
 
       </div>
 
