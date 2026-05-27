@@ -21,11 +21,7 @@ export default function InteractiveDoodleArea({ isMuted }) {
   const [brushSize, setBrushSize] = useState(5);
   const [selectedStickerId, setSelectedStickerId] = useState(null);
 
-  const [activeStickers, setActiveStickers] = useState([
-    { id: 'init-sheep', icon: '🐑', left: '10%', top: '15%' },
-    { id: 'init-moon', icon: '🌙', left: '45%', top: '10%' },
-    { id: 'init-star', icon: '⭐', left: '75%', top: '20%' }
-  ]);
+  const [activeStickers, setActiveStickers] = useState([]);
 
   const addSticker = (icon) => {
     if (!isMuted) playPop();
@@ -166,12 +162,8 @@ export default function InteractiveDoodleArea({ isMuted }) {
     const context = canvas.getContext('2d');
     context.fillStyle = '#ffffff';
     context.fillRect(0, 0, canvas.width, canvas.height);
-    // Reset stickers back to defaults
-    setActiveStickers([
-      { id: 'init-sheep', icon: '🐑', left: '10%', top: '15%' },
-      { id: 'init-moon', icon: '🌙', left: '45%', top: '10%' },
-      { id: 'init-star', icon: '⭐', left: '75%', top: '20%' }
-    ]);
+    // Clear stickers
+    setActiveStickers([]);
   };
 
   return (

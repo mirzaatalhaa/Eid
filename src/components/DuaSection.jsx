@@ -85,8 +85,8 @@ export default function DuaSection({ isMuted }) {
         <div className="absolute top-2 w-[96%] h-full bg-surface-container border-[3px] border-on-background rounded-3xl wobbly-border opacity-70 -translate-y-1 -rotate-2 z-10 pointer-events-none"></div>
 
         {/* Swipeable Main Card */}
-        <div className="w-full h-full flex items-center justify-center z-20">
-          <AnimatePresence mode="wait">
+        <div className="w-full h-full flex items-center justify-center z-20 relative">
+          <AnimatePresence mode="popLayout">
             <motion.div
               key={currentDua.id}
               drag="x"
@@ -96,7 +96,7 @@ export default function DuaSection({ isMuted }) {
               initial={{ x: 150, opacity: 0, rotate: -4 }}
               animate={{ x: 0, opacity: 1, rotate: 0 }}
               exit={{ x: -150, opacity: 0, rotate: 4 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 18 }}
+              transition={{ type: 'spring', stiffness: 280, damping: 25 }}
               className={`w-full max-w-xl min-h-[340px] sm:min-h-[380px] border-[3px] border-on-background rounded-3xl p-4 sm:p-6 md:p-8 flex flex-col justify-between relative cursor-grab active:cursor-grabbing select-none sticker-shadow-lg ${currentDua.colorClass}`}
             >
               {/* Paper Lines Grid */}
