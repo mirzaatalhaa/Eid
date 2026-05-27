@@ -13,11 +13,35 @@ const colors = [
 export default function InteractiveDoodleArea({ isMuted }) {
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
+  const canvasWrapperRef = useRef(null);
   const stickerTrayRef = useRef(null);
   const doodleAreaRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [brushColor, setBrushColor] = useState('#221a0f');
   const [brushSize, setBrushSize] = useState(5);
+
+  const [activeStickers, setActiveStickers] = useState([
+    { id: 'init-sheep', icon: '🐑', left: '10%', top: '15%' },
+    { id: 'init-moon', icon: '🌙', left: '45%', top: '10%' },
+    { id: 'init-star', icon: '⭐', left: '75%', top: '20%' }
+  ]);
+
+  const addSticker = (icon) => {
+    if (!isMuted) playPop();
+    const newId = Date.now();
+    const randomLeft = `${20 + Math.random() * 50}%`;
+    const randomTop = `${20 + Math.random() * 50}%`;
+    setActiveStickers((prev) => [
+      ...prev,
+      { id: newId, icon, left: randomLeft, top: randomTop }
+    ]);
+  };
+
+  const deleteSticker = (id, e) => {
+    e.stopPropagation();
+    if (!isMuted) playPop();
+    setActiveStickers((prev) => prev.filter((s) => s.id !== id));
+  };
 
   // Set up Drawing Canvas
   useEffect(() => {
@@ -140,6 +164,12 @@ export default function InteractiveDoodleArea({ isMuted }) {
     const context = canvas.getContext('2d');
     context.fillStyle = '#ffffff';
     context.fillRect(0, 0, canvas.width, canvas.height);
+    // Reset stickers back to defaults
+    setActiveStickers([
+      { id: 'init-sheep', icon: '🐑', left: '10%', top: '15%' },
+      { id: 'init-moon', icon: '🌙', left: '45%', top: '10%' },
+      { id: 'init-star', icon: '⭐', left: '75%', top: '20%' }
+    ]);
   };
 
   return (
@@ -233,7 +263,11 @@ export default function InteractiveDoodleArea({ isMuted }) {
           </div>
 
           {/* Interactive drawing canvas */}
-          <div className="w-full aspect-square sm:aspect-[4/3] relative overflow-hidden rounded-lg ml-4 sm:ml-5" style={{ maxWidth: 'calc(100% - 1rem)' }}>
+          <div 
+            ref={canvasWrapperRef}
+            className="w-full aspect-square sm:aspect-[4/3] relative overflow-hidden rounded-lg ml-4 sm:ml-5" 
+            style={{ maxWidth: 'calc(100% - 1rem)' }}
+          >
             <canvas
               ref={canvasRef}
               onMouseDown={startDrawing}
@@ -245,43 +279,63 @@ export default function InteractiveDoodleArea({ isMuted }) {
               onTouchEnd={stopDrawing}
               className="w-full h-full cursor-crosshair bg-white border border-outline-variant/50 rounded-lg shadow-[inset_1px_1px_2px_rgba(0,0,0,0.05)] touch-none block"
             />
+
+            {/* Draggable Stickers constrained strictly inside the drawing pad */}
+            {activeStickers.map((sticker) => (
+              <motion.div
+                key={sticker.id}
+                drag
+                dragConstraints={canvasWrapperRef}
+                dragElastic={0.05}
+                dragMomentum={false}
+                onDragStart={() => {
+                  if (!isMuted) playSlide();
+                }}
+                onDragEnd={() => {
+                  if (!isMuted) playPop();
+                }}
+                whileDrag={{ scale: 1.15, zIndex: 40 }}
+                className="absolute text-4.5xl sm:text-5xl w-14 h-14 flex items-center justify-center cursor-grab active:cursor-grabbing hover:scale-105 transition-all select-none z-30 group p-1"
+                style={{ left: sticker.left, top: sticker.top }}
+              >
+                {sticker.icon}
+                <button
+                  onClick={(e) => deleteSticker(sticker.id, e)}
+                  className="absolute -top-1 -right-1 bg-[#ba1a1a] text-white rounded-full w-5 h-5 text-[9px] flex items-center justify-center border-2 border-on-background shadow-md hover:scale-110 transition-transform cursor-pointer font-extrabold opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200"
+                  title="Remove sticker"
+                >
+                  ✕
+                </button>
+              </motion.div>
+            ))}
           </div>
         </div>
 
-        {/* Floating draggable sticker board: Full width on mobile, Col span 3 on desktop */}
+        {/* Floating sticker panel: Full width on mobile, Col span 3 on desktop */}
         <div className="w-full lg:col-span-3 bg-surface-container-low border-[3px] border-on-background rounded-2xl wobbly-border-sm p-4 sm:p-5 sticker-shadow flex flex-col gap-3 sm:gap-4 min-h-[220px] sm:min-h-[300px] relative bg-paper-grid z-20">
           <h3 className="font-headline font-bold text-base text-on-surface mb-1 flex items-center gap-1.5">
             <FiMove className="text-secondary animate-bounce" />
-            Drag Stickers
+            Sticker Tray
           </h3>
           <p className="font-body text-xs text-on-surface-variant leading-relaxed mb-2 font-semibold">
-            Pick up these sticker assets and drag them to the drawing pad!
+            Tap a sticker to add it to your doodle board, then drag it around!
           </p>
 
           <div 
             ref={stickerTrayRef}
             className="relative flex-grow border-2 border-dashed border-outline-variant/50 rounded-xl min-h-[160px] p-2 bg-background/50"
           >
-            {/* Stickers laid out in a flex grid so they start inside the container */}
+            {/* Stickers laid out as clickable buttons */}
             <div className="flex flex-wrap gap-4 justify-center items-center h-full min-h-[140px]">
               {['🐑', '🌙', '⭐'].map((icon, i) => (
-                <motion.div
+                <button
                   key={i}
-                  drag
-                  dragConstraints={doodleAreaRef}
-                  dragElastic={0.1}
-                  dragMomentum={false}
-                  onDragStart={() => {
-                    if (!isMuted) playSlide();
-                  }}
-                  onDragEnd={() => {
-                    if (!isMuted) playPop();
-                  }}
-                  whileDrag={{ scale: 1.2, zIndex: 50 }}
-                  className="text-3xl sm:text-4xl w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center cursor-grab active:cursor-grabbing hover:scale-110 transition-transform select-none z-30"
+                  onClick={() => addSticker(icon)}
+                  className="text-4xl w-14 h-14 flex items-center justify-center rounded-xl border-2 border-dashed border-outline-variant hover:border-solid hover:border-on-background hover:bg-surface-container-high hover:scale-110 active:scale-95 transition-all select-none cursor-pointer shadow-sm bg-surface"
+                  title={`Add ${icon} sticker`}
                 >
                   {icon}
-                </motion.div>
+                </button>
               ))}
             </div>
           </div>
