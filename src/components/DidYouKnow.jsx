@@ -84,7 +84,7 @@ export default function DidYouKnow({ isMuted }) {
           return (
             <div 
               key={item.id}
-              className="flex flex-col items-center group relative mt-10 sm:mt-0"
+              className="flex flex-col items-center group relative mt-4 sm:mt-0"
               onMouseEnter={() => setHoveredChar(item.id)}
               onMouseLeave={() => setHoveredChar(null)}
             >
@@ -92,7 +92,7 @@ export default function DidYouKnow({ isMuted }) {
               <motion.div
                 initial={{ opacity: 0, scale: 0.8, y: 15 }}
                 animate={showBubble ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.8 }}
-                className={`absolute -top-20 sm:-top-28 p-3 sm:p-4 border-2 border-on-background rounded-2xl wobbly-border-sm sticker-shadow z-10 text-center w-[200px] sm:max-w-[240px] text-[11px] sm:text-xs font-bold text-on-background ${item.bubbleColor}`}
+                className={`relative sm:absolute sm:-top-28 mb-4 sm:mb-0 p-3 sm:p-4 border-2 border-on-background rounded-2xl wobbly-border-sm sticker-shadow z-10 text-center w-[200px] sm:max-w-[240px] text-[11px] sm:text-xs font-bold text-on-background ${item.bubbleColor}`}
               >
                 <p className="leading-relaxed">{item.fact}</p>
                 {/* Arrow */}
