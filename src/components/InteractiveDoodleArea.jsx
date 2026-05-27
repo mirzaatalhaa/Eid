@@ -19,6 +19,7 @@ export default function InteractiveDoodleArea({ isMuted }) {
   const [isDrawing, setIsDrawing] = useState(false);
   const [brushColor, setBrushColor] = useState('#221a0f');
   const [brushSize, setBrushSize] = useState(5);
+  const [selectedStickerId, setSelectedStickerId] = useState(null);
 
   const [activeStickers, setActiveStickers] = useState([
     { id: 'init-sheep', icon: '🐑', left: '10%', top: '15%' },
@@ -111,6 +112,7 @@ export default function InteractiveDoodleArea({ isMuted }) {
   }, [brushColor, brushSize]);
 
   const startDrawing = ({ nativeEvent }) => {
+    setSelectedStickerId(null);
     let clientX, clientY;
     if (nativeEvent.touches) {
       clientX = nativeEvent.touches[0].clientX;
@@ -281,33 +283,42 @@ export default function InteractiveDoodleArea({ isMuted }) {
             />
 
             {/* Draggable Stickers constrained strictly inside the drawing pad */}
-            {activeStickers.map((sticker) => (
-              <motion.div
-                key={sticker.id}
-                drag
-                dragConstraints={canvasWrapperRef}
-                dragElastic={0.05}
-                dragMomentum={false}
-                onDragStart={() => {
-                  if (!isMuted) playSlide();
-                }}
-                onDragEnd={() => {
-                  if (!isMuted) playPop();
-                }}
-                whileDrag={{ scale: 1.15, zIndex: 40 }}
-                className="absolute text-4.5xl sm:text-5xl w-14 h-14 flex items-center justify-center cursor-grab active:cursor-grabbing hover:scale-105 transition-all select-none z-30 group p-1"
-                style={{ left: sticker.left, top: sticker.top }}
-              >
-                {sticker.icon}
-                <button
-                  onClick={(e) => deleteSticker(sticker.id, e)}
-                  className="absolute -top-1 -right-1 bg-[#ba1a1a] text-white rounded-full w-5 h-5 text-[9px] flex items-center justify-center border-2 border-on-background shadow-md hover:scale-110 transition-transform cursor-pointer font-extrabold opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200"
-                  title="Remove sticker"
+            {activeStickers.map((sticker) => {
+              const isSelected = selectedStickerId === sticker.id;
+              return (
+                <motion.div
+                  key={sticker.id}
+                  drag
+                  dragConstraints={canvasWrapperRef}
+                  dragElastic={0.05}
+                  dragMomentum={false}
+                  onPointerDown={() => setSelectedStickerId(sticker.id)}
+                  onDragStart={() => {
+                    setSelectedStickerId(sticker.id);
+                    if (!isMuted) playSlide();
+                  }}
+                  onDragEnd={() => {
+                    if (!isMuted) playPop();
+                  }}
+                  whileDrag={{ scale: 1.15, zIndex: 40 }}
+                  className={`absolute text-4.5xl sm:text-5xl w-14 h-14 flex items-center justify-center cursor-grab active:cursor-grabbing select-none z-30 p-1 touch-none rounded-xl border-2 transition-all duration-200 ${
+                    isSelected ? 'border-dashed border-secondary/50 bg-secondary/5' : 'border-transparent'
+                  }`}
+                  style={{ left: sticker.left, top: sticker.top }}
                 >
-                  ✕
-                </button>
-              </motion.div>
-            ))}
+                  {sticker.icon}
+                  {isSelected && (
+                    <button
+                      onClick={(e) => deleteSticker(sticker.id, e)}
+                      className="absolute -top-1 -right-1 bg-[#ba1a1a] text-white rounded-full w-5 h-5 text-[9px] flex items-center justify-center border-2 border-on-background shadow-md hover:scale-110 transition-transform cursor-pointer font-extrabold z-40"
+                      title="Remove sticker"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </motion.div>
+              );
+            })}
           </div>
         </div>
 
