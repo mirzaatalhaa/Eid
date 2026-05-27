@@ -7,7 +7,7 @@ const characterFacts = [
   {
     id: 'sheep',
     character: '🐑',
-    fact: 'The sheep reminds us of Ibrahim\'s story of sacrifice, deep devotion, and obedience to God! 🐑',
+    fact: 'The sheep reminds us of Prophet Ibrahim\'s story of sacrifice, deep devotion, and obedience to God! 🐑',
     colorClass: 'bg-primary-container text-on-primary-container',
     bubbleColor: 'bg-surface-container-low border-primary',
     animType: 'bounce'
