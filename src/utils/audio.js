@@ -67,51 +67,53 @@ export const playBaa = () => {
     const ctx = getAudioContext();
     const time = ctx.currentTime;
     
-    // Synthesize a sheep-like "Maa/Baa" vibrato sound using multiple oscillators
-    const fundamental = 160 + Math.random() * 20; // base sheep pitch
+    // Synthesize a cartoonish "goat moo" sound (blend of low cow moo and fast goat bleat)
+    const fundamental = 120; // Low moo base pitch
     const oscs = [];
     const gainNode = ctx.createGain();
     
     gainNode.connect(ctx.destination);
-    gainNode.gain.setValueAtTime(0.08, time);
-    gainNode.gain.linearRampToValueAtTime(0.08, time + 0.15);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, time + 0.45);
+    gainNode.gain.setValueAtTime(0.12, time);
+    gainNode.gain.linearRampToValueAtTime(0.12, time + 0.2);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, time + 0.6);
     
-    // Add LFO for vibrato/wavering effect
+    // LFO for goat-like vibrato (waver)
     const lfo = ctx.createOscillator();
     const lfoGain = ctx.createGain();
-    lfo.frequency.setValueAtTime(14, time); // Vibrato frequency (Hz)
-    lfoGain.gain.setValueAtTime(12, time); // Vibrato depth (Hz)
-    
+    lfo.frequency.setValueAtTime(18, time); // 18Hz fast vibrato
+    lfoGain.gain.setValueAtTime(15, time); // depth of 15Hz
     lfo.connect(lfoGain);
     
-    // Add fundamental & harmonics
-    const harmonics = [1, 1.5, 2, 2.5, 3];
+    // Harmonics for a rich brassy/bleaty texture
+    const harmonics = [1, 1.8, 2.4, 3];
     harmonics.forEach((h, index) => {
       const osc = ctx.createOscillator();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(fundamental * h, time);
+      // Mix sawtooth (goat bleat) and triangle (cow moo)
+      osc.type = index % 2 === 0 ? 'sawtooth' : 'triangle';
       
-      // Connect LFO to pitch for vibrato
+      // Pitch sweeps up from cow-moo level to a goat bleat, then back down
+      osc.frequency.setValueAtTime(fundamental * h, time);
+      osc.frequency.exponentialRampToValueAtTime(260 * h, time + 0.18);
+      osc.frequency.linearRampToValueAtTime(160 * h, time + 0.55);
+      
+      // Connect LFO for that characteristic vibrating bleat
       lfoGain.connect(osc.frequency);
       
-      // Mute high harmonics more to sound softer/woolier
       const hGain = ctx.createGain();
-      hGain.gain.setValueAtTime(1.0 / (index + 1), time);
+      hGain.gain.setValueAtTime(0.8 / (index + 1), time);
       
       osc.connect(hGain);
       hGain.connect(gainNode);
-      
       oscs.push(osc);
     });
 
     lfo.start(time);
     oscs.forEach(osc => osc.start(time));
     
-    lfo.stop(time + 0.45);
-    oscs.forEach(osc => osc.stop(time + 0.45));
+    lfo.stop(time + 0.6);
+    oscs.forEach(osc => osc.stop(time + 0.6));
   } catch (e) {
-    console.warn(e);
+    console.warn("Could not play goat moo sound", e);
   }
 };
 
